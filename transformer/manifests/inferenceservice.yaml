@@ -1,0 +1,36 @@
+apiVersion: "serving.kserve.io/v1beta1"
+kind: "InferenceService"
+metadata:
+  name: "kserve-sklearnserver"
+  namespace: "loan-prediction"
+  annotations:
+    openshift.io/display-name: digit-recognition
+    serving.knative.openshift.io/enablePassthrough: "true"
+    sidecar.istio.io/inject: "true"
+    sidecar.istio.io/rewriteAppHTTPProbers: "true"
+  labels:
+    #networking.knative.dev/visibility: cluster-local
+    opendatahub.io/dashboard: "true"
+spec:
+  predictor:
+    model:
+      modelFormat:
+        name: sklearn
+      runtime: kserve-sklearnserver
+      storage:
+        key: aws-connection-models
+        path: joblib/loan-prediction.joblib
+  transformer:
+    containers:
+      - image: quay.io/alegros/loan-prediction-transformer:latest
+        name: transformer
+        command:
+          - "python"
+          - "transformer.py"
+        args:
+          - --model_name
+          - model
+          - --protocol 
+          - v2
+          - --predictor_host
+          - kserve-sklearnserver-predictor.loan-prediction.svc.cluster.local

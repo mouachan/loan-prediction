@@ -1,0 +1,4 @@
+kserve
+joblib
+pandas
+scikit-learn

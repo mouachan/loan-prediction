@@ -1,0 +1,1 @@
+podman build -f Containerfile -t loan-prediction-transformer ../src
